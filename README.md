@@ -1,0 +1,1 @@
+# composer-distributed-update-plugin
