@@ -18,7 +18,7 @@ class RequireCommand extends \Composer\Command\RequireCommand
         $io = $this->getIO();
 
         $io->writeError('<info>Merge configuration from instance composer.json files and install requested packages.</info>');
-
+        
         $result = parent::execute($input, $output);
 
         if ($result !== 0) {
@@ -32,31 +32,32 @@ class RequireCommand extends \Composer\Command\RequireCommand
 
         foreach ($packages as $package) {
             $extensionParts = explode('/', $package);
-
             $extensionComposerJson = $vendor . '/' . $extensionParts[0] . '/' . $extensionParts[1] . '/composer.json';
-
             $extensionComposerData = json_decode(file_get_contents($extensionComposerJson), true);
 
-            if ($extensionComposerData['type'] == 'magento2-module') {
+            $packageVersion = $extensionComposerData['version'];
 
-                $packageVersion = $extensionComposerData['version'];
-
-                // If metapackage, check recursively for packages that has composer.json with custom configuration of where this extension should be added
-                foreach ($extensionComposerData['require'] as $dependentPackage => $version) {
-                    $dependentPackageParts = explode('/', $dependentPackage);
-                    $extensionDependencyComposerData = json_decode(
-                        file_get_contents(
-                            $vendor . '/' . $dependentPackageParts[0] . '/' . $dependentPackageParts[1] . '/composer.json'
-                        ),
-                        true
-                    );
-                    $instanceDependencies[$dependentPackage] = [
-                        'version' => $version,
-                        'instances' => $extensionDependencyComposerData['instances']
-                    ];
+            // If metapackage, check for packages that has composer.json with custom configuration of where this extension should be added
+            foreach ($extensionComposerData['require'] as $dependentPackage => $version) {
+                $dependentPackageParts = explode('/', $dependentPackage);
+                $extensionDependencyComposerData = json_decode(
+                    file_get_contents(
+                        $vendor . '/' . $dependentPackageParts[0] . '/' . $dependentPackageParts[1] . '/composer.json'
+                    ),
+                    true
+                );
+                
+                if (!isset($extensionDependencyComposerData['instances'])
+                    || empty($extensionDependencyComposerData['instances'])
+                ) {
+                    $io->writeError('<info>' . $dependentPackage . ' of ' . $package . ' doesn\'t contain instance configuration.</info>');
+                    return 1;
                 }
-            } else {
-                // If not metapackage don't check recursively, just add
+                
+                $instanceDependencies[$dependentPackage] = [
+                    'version' => $version,
+                    'instances' => $extensionDependencyComposerData['instances']
+                ];
             }
 
             foreach ($instanceDependencies as $instanceDependency => $instanceDependencyInfo) {
@@ -82,6 +83,7 @@ class RequireCommand extends \Composer\Command\RequireCommand
                         $io->writeError('<info>' . $extension['dependency'] . ' has been added as dependency to ' . $instance . ' instance.</info>');
                     }
                 }
+                // Need to use composer API, handle file doesn't exist and not writable errors, etc
                 file_put_contents($instances[$instance], json_encode($instanceComposerData));
             }
         }

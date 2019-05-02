@@ -4,11 +4,29 @@ namespace Magento\Composer;
 
 use Composer\Plugin\PluginInterface;
 use Composer\Plugin\Capable;
-use Magento\Composer\Merge\MissingFileException;
 
 class Plugin extends \Wikimedia\Composer\MergePlugin implements PluginInterface, \Composer\EventDispatcher\EventSubscriberInterface, Capable
 {
 
+    /**
+     * {@inheritdoc}
+     */
+    public static function getSubscribedEvents()
+    {
+        return parent::getSubscribedEvents() + [
+            \Composer\Installer\PackageEvents::PRE_PACKAGE_UPDATE =>
+                array('prePackageUpdate', self::CALLBACK_PRIORITY),
+        ];
+    }
+
+    public function prePackageUpdate()
+    {
+        $a = 1;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getCapabilities()
     {
         return [
@@ -17,13 +35,23 @@ class Plugin extends \Wikimedia\Composer\MergePlugin implements PluginInterface,
     }
 
     /**
-     * Find configuration files matching the configured glob patterns and
-     * merge their contents with the master package.
-     *
-     * @param array $patterns List of files/glob patterns
-     * @param bool $required Are the patterns required to match files?
-     * @throws MissingFileException when required and a pattern returns no
-     *      results
+     * @inheritdoc
+     */
+    public function onInit(\Composer\EventDispatcher\Event $event)
+    {
+        /*
+        $this->state->loadSettings();
+        if (!isset($this->composer->getPackage()->getExtra()['magento-plugin']['instances'])) {
+            throw new \Magento\Composer\Merge\MissingConfigurationException(
+                "Required configuration is missing in root composer.json for Magento distributed update plugin."
+            );
+        }
+        */
+        parent::onInit($event);
+    }
+
+    /**
+     * @inheritdoc
      */
     protected function mergeFiles(array $patterns, $required = false)
     {

@@ -11,7 +11,6 @@ class CommandProvider implements \Composer\Plugin\Capability\CommandProvider
     {
         return [
             new \Magento\Composer\Command\UpdateCommand(),
-            new \Magento\Composer\Command\InstallCommand(),
             new \Magento\Composer\Command\RequireCommand(),
             new \Magento\Composer\Command\RemoveCommand()
         ];

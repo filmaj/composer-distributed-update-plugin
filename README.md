@@ -38,6 +38,3 @@ Extension must be a metapackage that should consists with packages that have con
 The following commands available to manage dependencies
 * `composer distributed-require`
 * `composer distributed-remove`
-src
-composer.json
-README.md

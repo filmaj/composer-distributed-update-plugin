@@ -72,20 +72,15 @@ class RemoveCommand extends \Composer\Command\RemoveCommand
             $composer->getPackage()->setRequires($packages);
             $jsonFile->write($composerDefinition);
 
-            if ($extensionComposerData['type'] == 'magento2-module') {
-                // If metapackage, check recursively for packages that has composer.json with custom configuration of where this extension should be added
-                foreach ($extensionComposerData['require'] as $dependentPackage => $version) {
-                    $dependentPackageParts = explode('/', $dependentPackage);
-                    $extensionDependencyComposerData = json_decode(
-                        file_get_contents(
-                            $vendor . '/' . $dependentPackageParts[0] . '/' . $dependentPackageParts[1] . '/composer.json'
-                        ),
-                        true
-                    );
-                    $instanceDependencies[$dependentPackage] = $extensionDependencyComposerData['instances'];
-                }
-            } else {
-                // If not metapackage don't check recursively, just add
+            foreach ($extensionComposerData['require'] as $dependentPackage => $version) {
+                $dependentPackageParts = explode('/', $dependentPackage);
+                $extensionDependencyComposerData = json_decode(
+                    file_get_contents(
+                        $vendor . '/' . $dependentPackageParts[0] . '/' . $dependentPackageParts[1] . '/composer.json'
+                    ),
+                    true
+                );
+                $instanceDependencies[$dependentPackage] = $extensionDependencyComposerData['instances'];
             }
 
             foreach ($instanceDependencies as $instanceDependency => $instances) {
@@ -94,30 +89,19 @@ class RemoveCommand extends \Composer\Command\RemoveCommand
                 }
             }
 
-
-            //$composer = $this->getComposer(true, $input->getOption('no-plugins'));
-
             $composer = \Composer\Factory::create(new \Composer\IO\NullIO(), null, null);
-
 
             $vendor  = $composer->getConfig()->get('vendor-dir');
 
             $extensionParts = explode('/', $package);
 
-            echo $extensionComposerJson = $vendor . '/' . $extensionParts[0] . '/' . $extensionParts[1] . '/composer.json';
+            $extensionComposerJson = $vendor . '/' . $extensionParts[0] . '/' . $extensionParts[1] . '/composer.json';
 
             $extensionComposerData = json_decode(file_get_contents($extensionComposerJson), true);
 
-            //print_r($extensionComposerData);
-
             $dependentPackages = [];
-            if ($extensionComposerData['type'] == 'magento2-module') {
-                // If metapackage, check recursively for packages that has composer.json with custom configuration of where this extension should be added
-                foreach ($extensionComposerData['require'] as $dependentPackage => $version) {
-                    $dependentPackages[] = $dependentPackage;
-                }
-            } else {
-                // If not metapackage don't check recursively, just add
+            foreach ($extensionComposerData['require'] as $dependentPackage => $version) {
+                $dependentPackages[] = $dependentPackage;
             }
 
         }
