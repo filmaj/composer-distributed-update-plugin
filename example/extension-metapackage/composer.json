@@ -1,0 +1,17 @@
+{
+    "name": "magento/module-extension-metapackage",
+    "description": "N/A",
+    "version": "1.0.0",
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "magento/module-extension-ui": "1.0.0",
+        "magento/module-extension-admin-ui": "1.0.0"
+    },
+    "type": "magento2-module",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ]
+}

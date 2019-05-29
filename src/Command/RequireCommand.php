@@ -47,8 +47,8 @@ class RequireCommand extends \Composer\Command\RequireCommand
                     true
                 );
                 
-                if (!isset($extensionDependencyComposerData['instances'])
-                    || empty($extensionDependencyComposerData['instances'])
+                if (!isset($extensionDependencyComposerData['extra']['magento-plugin']['instances'])
+                    || empty($extensionDependencyComposerData['extra']['magento-plugin']['instances'])
                 ) {
                     $io->writeError('<info>' . $dependentPackage . ' of ' . $package . ' doesn\'t contain instance configuration.</info>');
                     return 1;
@@ -56,7 +56,7 @@ class RequireCommand extends \Composer\Command\RequireCommand
                 
                 $instanceDependencies[$dependentPackage] = [
                     'version' => $version,
-                    'instances' => $extensionDependencyComposerData['instances']
+                    'instances' => $extensionDependencyComposerData['extra']['magento-plugin']['instances']
                 ];
             }
 
