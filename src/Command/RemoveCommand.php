@@ -67,7 +67,7 @@ class RemoveCommand extends \Composer\Command\RemoveCommand
             }
 
             $composerDefinition['require'] = $packages;
-            $extraBack = $composerDefinition['extra'] ?: [];
+            $extraBack = $composerDefinition['extra'] ?? [];
             unset($composerDefinition['extra']);
             $composer->getPackage()->setRequires($packages);
             $jsonFile->write($composerDefinition);
@@ -80,7 +80,7 @@ class RemoveCommand extends \Composer\Command\RemoveCommand
                     ),
                     true
                 );
-                $instanceDependencies[$dependentPackage] = $extensionDependencyComposerData['instances'];
+                $instanceDependencies[$dependentPackage] = $extensionDependencyComposerData['extra']['magento-plugin']['instances'];
             }
 
             foreach ($instanceDependencies as $instanceDependency => $instances) {
@@ -128,6 +128,7 @@ class RemoveCommand extends \Composer\Command\RemoveCommand
         // Need to check which packages were removed
 
         $instances = $composer->getPackage()->getExtra()['magento-plugin']['instances'];
+
         foreach ($instancesData as $instance => $instanceData) {
             $instanceComposerData = json_decode(file_get_contents($instances[$instance]), true);
             foreach ($instanceData as $extension) {
